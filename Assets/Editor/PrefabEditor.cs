@@ -45,6 +45,7 @@ namespace Editor
         private float _xScale;
         private float _yScale;
         private float _zScale;
+        private int _editorMode;
         
         private bool _shouldLookAtResourcesFolder = true;
 
@@ -52,20 +53,13 @@ namespace Editor
 
 
         #region --- Editor Methods ---
-
-        [MenuItem("Tools/Open Prefabs Editor")]
-        public static void OpenWindow()
-        {
-            PrefabEditor window = (PrefabEditor)GetWindow(typeof(PrefabEditor));
-            window.Show();
-        }
         
         private void OnGUI()
         {
-            _shouldLookAtResourcesFolder = EditorGUILayout.Toggle("Look at Resources Folder", _shouldLookAtResourcesFolder);
-            
+            HandleWindowPosition();
             CreateMenu();
             HandleMenuSelection();
+            GUILayout.Space(21);
 
             if (GUILayout.Button(START_BUTTON_NAME))
             {
@@ -77,6 +71,23 @@ namespace Editor
 
 
         #region --- Private Methods ---
+        
+        [MenuItem("Tools/Open Prefabs Editor")]
+        private static void Init()
+        {
+            PrefabEditor window = (PrefabEditor)GetWindow(typeof(PrefabEditor));
+            window.Show();
+        }
+
+        private void HandleWindowPosition()
+        {
+            int value = GUI.skin.window.padding.bottom;
+            GUI.skin.window.padding.bottom = -20;
+            Rect windowRect1 = GUILayoutUtility.GetRect(1, 17);
+            windowRect1.x += 4;
+            windowRect1.width -= 7;
+            GUI.skin.window.padding.bottom = value;
+        }
 
         private void CreateMenu()
         {
@@ -104,9 +115,11 @@ namespace Editor
             switch (_option)
             {
                 case SPRITE_FILED_NAME:
+                    _shouldLookAtResourcesFolder = EditorGUILayout.Toggle("Resources Folder", _shouldLookAtResourcesFolder);
                     _spriteName = EditorGUILayout.TextField(SPRITE_FILED_NAME + " " + NAME_TITLE, _spriteName);
                     break;
                 case MATERIAL_FILED_NAME:
+                    _shouldLookAtResourcesFolder = EditorGUILayout.Toggle("Resources Folder", _shouldLookAtResourcesFolder);
                     _materialName = EditorGUILayout.TextField(MATERIAL_FILED_NAME + " " + NAME_TITLE, _materialName);
                     break;
                 case TRANSFORM_POSITION_FILED_NAME:
@@ -133,7 +146,7 @@ namespace Editor
             {
                 case SPRITE_FILED_NAME:
                 {
-                    _sprite = GetComponent<Sprite>(SPRITE_FOLDER_NAME, _spriteName);
+                    _sprite = _shouldLookAtResourcesFolder ? GetComponentFromResources<Sprite>(SPRITE_FOLDER_NAME, _spriteName) : GetComponentFromFolder<Sprite>(SPRITE_FOLDER_NAME);
                 
                     if (_sprite == null)
                     {
@@ -151,7 +164,7 @@ namespace Editor
                 }
                 case MATERIAL_FILED_NAME:
                 {
-                    _material = GetComponent<Material>(MATERIALS_FOLDER_NAME, _materialName);
+                    _material = GetComponentFromResources<Material>(MATERIALS_FOLDER_NAME, _materialName);
                 
                     if (_material == null)
                     {
@@ -193,9 +206,15 @@ namespace Editor
             }
         }
 
-        private T GetComponent<T>(string folderName, string componentName) where T : Object
+        private T GetComponentFromResources<T>(string folderName, string componentName) where T : Object
         {
             return Resources.Load<T>(folderName + "/" + componentName);
+        }
+        
+        private T GetComponentFromFolder<T>(string folderName) where T : Object
+        {
+            Debug.LogError(AssetDatabase.GetAssetPath(_sprite));
+            return AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GetAssetPath(_sprite));
         }
 
         #endregion Private Methods
