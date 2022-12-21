@@ -95,11 +95,11 @@ namespace Editor
             {
                 GenericMenu menu = new GenericMenu();
 
-                AddMenuItem(menu, "Option/Sprite", SPRITE_FILED_NAME);
-                AddMenuItem(menu, "Option/Material", MATERIAL_FILED_NAME);
-                AddMenuItem(menu, "Option/Transform/Position", TRANSFORM_POSITION_FILED_NAME);
-                AddMenuItem(menu, "Option/Transform/Rotation", TRANSFORM_ROTATION_FILED_NAME);
-                AddMenuItem(menu, "Option/Transform/Scale", TRANSFORM_SCALE_FILED_NAME);
+                AddMenuItem(menu, "Sprite", SPRITE_FILED_NAME);
+                AddMenuItem(menu, "Material", MATERIAL_FILED_NAME);
+                AddMenuItem(menu, "Transform/Position", TRANSFORM_POSITION_FILED_NAME);
+                AddMenuItem(menu, "Transform/Rotation", TRANSFORM_ROTATION_FILED_NAME);
+                AddMenuItem(menu, "Transform/Scale", TRANSFORM_SCALE_FILED_NAME);
 
                 menu.ShowAsContext();
             }
@@ -157,7 +157,10 @@ namespace Editor
                 
                     foreach (GameObject go in Selection.gameObjects)
                     {
-                        go.GetComponentInChildren<Image>().sprite = _sprite;
+                        if (go.GetComponentInChildren<Image>().sprite != null)
+                        {
+                            go.GetComponentInChildren<Image>().sprite = _sprite;
+                        }
                     }
 
                     break;
@@ -175,7 +178,10 @@ namespace Editor
                 
                     foreach (GameObject go in Selection.gameObjects)
                     {
-                        go.GetComponentInChildren<MeshRenderer>().sharedMaterial = _material;
+                        if (go.GetComponentInChildren<MeshRenderer>().material != null)
+                        {
+                            go.GetComponentInChildren<MeshRenderer>().sharedMaterial = _material;
+                        }
                     }
 
                     break;
