@@ -15,8 +15,11 @@ namespace Editor
         private const string MATERIAL_FILED_NAME = "Material";
         private const string MATERIALS_FOLDER_NAME = "Materials";
         private const string TRANSFORM_POSITION_FILED_NAME = "Position";
+        private const string TRANSFORM_POSITION_PATH = "Transform/Position";
         private const string TRANSFORM_ROTATION_FILED_NAME = "Rotation";
+        private const string TRANSFORM_ROTATION_PATH = "Transform/Rotation";
         private const string TRANSFORM_SCALE_FILED_NAME = "Scale";
+        private const string TRANSFORM_SCALE_PATH = "Transform/Scale";
         private const string X_VECTOR_NAME = "X ";
         private const string Y_VECTOR_NAME = "Y ";
         private const string Z_VECTOR_NAME = "Z ";
@@ -25,6 +28,9 @@ namespace Editor
         private const string START_BUTTON_NAME = "Start";
         private const string ERROR_TITLE = "Error";
         private const string OK_BUTTON_NAME = "OK";
+        private const string RESOURCES_FOLDER_NAME = "Resources Folder";
+        private const string TRANSFORM_ERROR_MESSAGE = "Please select an option";
+        private const string SPACE = " ";
 
         #endregion
         
@@ -95,11 +101,11 @@ namespace Editor
             {
                 GenericMenu menu = new GenericMenu();
 
-                AddMenuItem(menu, "Sprite", SPRITE_FILED_NAME);
-                AddMenuItem(menu, "Material", MATERIAL_FILED_NAME);
-                AddMenuItem(menu, "Transform/Position", TRANSFORM_POSITION_FILED_NAME);
-                AddMenuItem(menu, "Transform/Rotation", TRANSFORM_ROTATION_FILED_NAME);
-                AddMenuItem(menu, "Transform/Scale", TRANSFORM_SCALE_FILED_NAME);
+                AddMenuItem(menu, SPRITE_FILED_NAME, SPRITE_FILED_NAME);
+                AddMenuItem(menu, MATERIAL_FILED_NAME, MATERIAL_FILED_NAME);
+                AddMenuItem(menu, TRANSFORM_POSITION_PATH, TRANSFORM_POSITION_FILED_NAME);
+                AddMenuItem(menu, TRANSFORM_ROTATION_PATH, TRANSFORM_ROTATION_FILED_NAME);
+                AddMenuItem(menu, TRANSFORM_SCALE_PATH, TRANSFORM_SCALE_FILED_NAME);
 
                 menu.ShowAsContext();
             }
@@ -115,12 +121,12 @@ namespace Editor
             switch (_option)
             {
                 case SPRITE_FILED_NAME:
-                    _shouldLookAtResourcesFolder = EditorGUILayout.Toggle("Resources Folder", _shouldLookAtResourcesFolder);
-                    _spriteName = EditorGUILayout.TextField(SPRITE_FILED_NAME + " " + NAME_TITLE, _spriteName);
+                    _shouldLookAtResourcesFolder = EditorGUILayout.Toggle(RESOURCES_FOLDER_NAME, _shouldLookAtResourcesFolder);
+                    _spriteName = EditorGUILayout.TextField(SPRITE_FILED_NAME + SPACE + NAME_TITLE, _spriteName);
                     break;
                 case MATERIAL_FILED_NAME:
-                    _shouldLookAtResourcesFolder = EditorGUILayout.Toggle("Resources Folder", _shouldLookAtResourcesFolder);
-                    _materialName = EditorGUILayout.TextField(MATERIAL_FILED_NAME + " " + NAME_TITLE, _materialName);
+                    _shouldLookAtResourcesFolder = EditorGUILayout.Toggle(RESOURCES_FOLDER_NAME, _shouldLookAtResourcesFolder);
+                    _materialName = EditorGUILayout.TextField(MATERIAL_FILED_NAME + SPACE + NAME_TITLE, _materialName);
                     break;
                 case TRANSFORM_POSITION_FILED_NAME:
                     _xPosition = EditorGUILayout.FloatField(X_VECTOR_NAME + TRANSFORM_POSITION_FILED_NAME + SEMI_COLLUM_SIGN, _xPosition);
@@ -146,11 +152,11 @@ namespace Editor
             {
                 case SPRITE_FILED_NAME:
                 {
-                    _sprite = _shouldLookAtResourcesFolder ? GetComponentFromResources<Sprite>(SPRITE_FOLDER_NAME, _spriteName) : GetComponentFromFolder<Sprite>(SPRITE_FOLDER_NAME);
+                    _sprite = GetComponentFromResources<Sprite>(SPRITE_FOLDER_NAME, _spriteName);
                 
                     if (_sprite == null)
                     {
-                        EditorUtility.DisplayDialog(ERROR_TITLE, "Cannot find the sprite in project", OK_BUTTON_NAME);
+                        EditorUtility.DisplayDialog(ERROR_TITLE, HandleErrorMessage(SPRITE_FILED_NAME), OK_BUTTON_NAME);
                 
                         return;
                     }
@@ -171,7 +177,7 @@ namespace Editor
                 
                     if (_material == null)
                     {
-                        EditorUtility.DisplayDialog(ERROR_TITLE, "Cannot find the material in project", OK_BUTTON_NAME);
+                        EditorUtility.DisplayDialog(ERROR_TITLE, HandleErrorMessage(MATERIAL_FILED_NAME), OK_BUTTON_NAME);
                 
                         return;
                     }
@@ -202,7 +208,7 @@ namespace Editor
                                 go.GetComponentInChildren<Transform>().localScale = new Vector3(_xScale, _yScale, _zScale);
                                 break;
                             default:
-                                EditorUtility.DisplayDialog(ERROR_TITLE, "Please select an option", OK_BUTTON_NAME);
+                                EditorUtility.DisplayDialog(ERROR_TITLE, TRANSFORM_ERROR_MESSAGE, OK_BUTTON_NAME);
                                 return;
                         }
                     }
@@ -217,10 +223,9 @@ namespace Editor
             return Resources.Load<T>(folderName + "/" + componentName);
         }
         
-        private T GetComponentFromFolder<T>(string folderName) where T : Object
+        private string HandleErrorMessage(string component)
         {
-            Debug.LogError(AssetDatabase.GetAssetPath(_sprite));
-            return AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GetAssetPath(_sprite));
+            return $"Cannot find the {component} in project";
         }
 
         #endregion Private Methods
